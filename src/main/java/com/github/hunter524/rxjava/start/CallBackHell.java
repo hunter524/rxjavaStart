@@ -5,12 +5,12 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class CallBackHell {
-    public static ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    public static ExecutorService CACHED_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
 
     public static void main(String[] args) {
@@ -27,7 +27,7 @@ public class CallBackHell {
                                 getTradeDetail(tradedata.id, new GetTradeDetailCallBack() {
                                     @Override
                                     public void onSucces(TradeDetail tradeDetail) {
-                                        System.out.println("Call Back hell Detail:"+tradeDetail.content);
+                                        System.out.println("Call Back hell Detail:" + tradeDetail.content);
                                     }
 
                                     @Override
@@ -76,7 +76,7 @@ public class CallBackHell {
                 .subscribe(new Consumer<TradeDetail>() {
                     @Override
                     public void accept(TradeDetail tradeDetail) throws Exception {
-                        System.out.println("RxJava Wrap Detail:"+tradeDetail.content);
+                        System.out.println("RxJava Wrap Detail:" + tradeDetail.content);
                     }
                 });
 // no wrap rxjava
@@ -98,7 +98,7 @@ public class CallBackHell {
                 .subscribe(new Consumer<TradeDetail>() {
                     @Override
                     public void accept(TradeDetail tradeDetail) throws Exception {
-                        System.out.println("RxJava NoWrap Detail:"+tradeDetail.content);
+                        System.out.println("RxJava NoWrap Detail:" + tradeDetail.content);
                     }
                 });
 
@@ -129,48 +129,67 @@ public class CallBackHell {
         }
     }
 
-    public interface GetPersonCallBack{
+    public interface GetPersonCallBack {
         public void onSucces(PersonInfo personInfo);
+
         public void onError();
     }
 
-    public interface GetTradeDetailCallBack{
+    public interface GetTradeDetailCallBack {
         public void onSucces(TradeDetail tradeDetail);
+
         public void onError();
     }
 
-    public interface GetTradeDataCallBack{
+    public interface GetTradeDataCallBack {
         public void onSucces(TradeData tradedata);
+
         public void onError();
     }
 
-    public static void getPersonInfo(String acc,String pwd,GetPersonCallBack getPersonCallBack){
-        SCHEDULED_EXECUTOR_SERVICE.schedule(new Runnable() {
+    public static void getPersonInfo(String acc, String pwd, GetPersonCallBack getPersonCallBack) {
+        CACHED_EXECUTOR_SERVICE.submit(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 getPersonCallBack.onSucces(new PersonInfo("token"));
             }
-        },1, TimeUnit.SECONDS);
+        });
     }
 
-    public static void getTradeData(String token,GetTradeDataCallBack getTradeDataCallBack){
-        SCHEDULED_EXECUTOR_SERVICE.schedule(new Runnable() {
+    public static void getTradeData(String token, GetTradeDataCallBack getTradeDataCallBack) {
+        CACHED_EXECUTOR_SERVICE.submit(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 getTradeDataCallBack.onSucces(new TradeData("id"));
             }
-        },1, TimeUnit.SECONDS);
+        });
     }
 
-    public static void getTradeDetail(String id, GetTradeDetailCallBack getTradeDetailCallBack){
-        SCHEDULED_EXECUTOR_SERVICE.schedule(new Runnable() {
+    public static void getTradeDetail(String id, GetTradeDetailCallBack getTradeDetailCallBack) {
+        CACHED_EXECUTOR_SERVICE.submit(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 getTradeDetailCallBack.onSucces(new TradeDetail("content"));
             }
-        },1, TimeUnit.SECONDS);
+        });
     }
-// 包装老的接口进入 rxjava 的模式
+
+    // 包装老的接口进入 rxjava 的模式
     public static Observable<PersonInfo> getPersonInfoObWrapp(String acc, String pwd) {
         return Observable.<PersonInfo>create(new ObservableOnSubscribe<PersonInfo>() {
             @Override
