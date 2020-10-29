@@ -21,20 +21,10 @@ public class CallBackHell {
                 getTradeData(personInfo.token, new GetTradeDataCallBack() {
                     @Override
                     public void onSucces(TradeData tradedata) {
-                        getTradeData(personInfo.token, new GetTradeDataCallBack() {
+                        getTradeDetail(tradedata.id, new GetTradeDetailCallBack() {
                             @Override
-                            public void onSucces(TradeData tradedata) {
-                                getTradeDetail(tradedata.id, new GetTradeDetailCallBack() {
-                                    @Override
-                                    public void onSucces(TradeDetail tradeDetail) {
-                                        System.out.println("Call Back hell Detail:" + tradeDetail.content);
-                                    }
-
-                                    @Override
-                                    public void onError() {
-
-                                    }
-                                });
+                            public void onSucces(TradeDetail tradeDetail) {
+                                System.out.println("Call Back hell Detail:" + tradeDetail.content);
                             }
 
                             @Override
